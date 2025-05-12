@@ -9,12 +9,12 @@ class Model:
         self._airports = DAO.getAllAirports()
         self._idMapAirports = {}
         for a in self._airports:
-            self._idMapAirports[a.ID] = a
+            self._idMapAirports[a.ID] = a  # associo l'aeroporto all'id
 
     def buildGraph(self, nMin):
         nodes = DAO.getAllNodes(nMin, self._idMapAirports)
         self._graph.add_nodes_from(nodes)
-        print(self._graph.nodes)
+        print(len(self._graph.nodes))
 
 
 

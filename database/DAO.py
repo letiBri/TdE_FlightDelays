@@ -41,7 +41,7 @@ class DAO:
         cursor.execute(query, (nMin, ))
 
         for row in cursor:
-            result.append(idMapAirports[row["ID"]])
+            result.append(idMapAirports[row["ID"]])  # metto dentro il risultato gli Airports attraverso l'idMap
 
         cursor.close()
         conn.close()
