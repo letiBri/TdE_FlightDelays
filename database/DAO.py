@@ -1,5 +1,6 @@
 from database.DB_connect import DBConnect
 from model.airport import Airport
+from model.arco import Arco
 
 
 class DAO:
@@ -42,6 +43,56 @@ class DAO:
 
         for row in cursor:
             result.append(idMapAirports[row["ID"]])  # metto dentro il risultato gli Airports attraverso l'idMap
+
+        cursor.close()
+        conn.close()
+        return result
+
+    @staticmethod
+    def getAllEdgesV1(idMapAirports):
+        conn = DBConnect.get_connection()
+
+        result = []
+
+        cursor = conn.cursor(dictionary=True)
+        query = """select f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID, count(*) as n 
+                from flights f 
+                group by f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID 
+                order by f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID"""
+
+        cursor.execute(query)
+
+        for row in cursor:
+            # result.append((idMapAirports[row["ORIGIN_AIRPORT_ID"]], idMapAirports[row["DESTINATION_AIRPORT_ID"]], row["n"]))
+            result.append(Arco(idMapAirports[row["ORIGIN_AIRPORT_ID"]], idMapAirports[row["DESTINATION_AIRPORT_ID"]], row["n"]))  # delego tutto al modello
+
+        cursor.close()
+        conn.close()
+        return result
+
+    @staticmethod
+    def getAllEdgesV2(idMapAirports):
+        conn = DBConnect.get_connection()
+
+        result = []
+
+        cursor = conn.cursor(dictionary=True)
+        query = """select t1.ORIGIN_AIRPORT_ID, t1.DESTINATION_AIRPORT_ID, (coalesce(t1.n, 0) + coalesce(t2.n, 0)) as n
+                    from (select f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID, count(*) as n 
+                            from flights f 
+                            group by f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID 
+                            order by f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID) t1  
+                    left join (select f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID, count(*) as n 
+                            from flights f 
+                            group by f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID 
+                            order by f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID) t2  
+                    on t1.ORIGIN_AIRPORT_ID = t2.DESTINATION_AIRPORT_ID and t1.DESTINATION_AIRPORT_ID = t2.ORIGIN_AIRPORT_ID
+                    where t1.ORIGIN_AIRPORT_ID < t1.DESTINATION_AIRPORT_ID or t2.ORIGIN_AIRPORT_ID is null"""
+
+        cursor.execute(query)
+
+        for row in cursor:
+            result.append(Arco(idMapAirports[row["ORIGIN_AIRPORT_ID"]], idMapAirports[row["DESTINATION_AIRPORT_ID"]], row["n"]))
 
         cursor.close()
         conn.close()
