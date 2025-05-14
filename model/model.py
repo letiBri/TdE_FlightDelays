@@ -25,7 +25,7 @@ class Model:
         for e in allEdges:
             if e.aeroportoP in self._graph and e.aeroportoD in self._graph:  # controllo che i nodi siano nel grafo
                 if self._graph.has_edge(e.aeroportoP, e.aeroportoD):  # controllo se esiste già l'arco
-                    self._graph[e.aeroportoP][e.aeroportoD]["weight"] += e.peso
+                    self._graph[e.aeroportoP][e.aeroportoD]["weight"] += e.peso  # aumento il peso se l'arco esiste già
                 else:
                     self._graph.add_edge(e.aeroportoP, e.aeroportoD, weight=e.peso)
 
@@ -47,7 +47,7 @@ class Model:
         neighbors = self._graph.neighbors(node)  # self._graph[node] prendo tutti i vicini
         neighbTuples = []
         for n in neighbors:
-            neighbTuples.append((n,  self._graph[node][n]["weight"]))  # prendo il peso sull'arco da node a n
+            neighbTuples.append((n,  self._graph[node][n]["weight"]))  # con il secondo elemento della tupla, prendo il peso sull'arco da node a n
         neighbTuples.sort(key=lambda x: x[1], reverse=True)  # sorto utilizzando come chiave i pesi della tupla
         return neighbTuples
 
@@ -56,7 +56,7 @@ class Model:
 
         # path = nx.shortest_path(self._graph, v0, v1)
         #
-        # mydict = dict(nx.bfs_predecessors(self._graph, v0))  # iteratore su tutti gli archi predessori di v0
+        # mydict = dict(nx.bfs_predecessors(self._graph, v0))  # iteratore su tutti gli archi predecessori di v0
         # path = [v1]
         # while path[0] != v0:
         #     path.insert(0, mydict[path[0]])

@@ -57,6 +57,7 @@ class Controller:
         return
 
     def handlePercorso(self, e):
+        self._view.txt_result.controls.clear()
         if self._choiceDDAeroportoP is None:
             self._view.txt_result.controls.clear()
             self._view.create_alert("Selezionare un aeroporto di partenza dal menù")
