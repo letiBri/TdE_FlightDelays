@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import flet as ft
 
 
@@ -81,7 +83,36 @@ class Controller:
         return
 
     def handleCerca(self, e):
-        pass
+        v0 = self._choiceDDAeroportoP
+        v1 = self._choiceDDAeroportoD
+        t = self._view._txtInTratteMax.value
+        if t == "":
+            self._view.txt_result.controls.clear()
+            self._view.create_alert("Inserire un numero di tratte minimo")
+            self._view.update_page()
+            return
+        try:
+            tint = int(t)
+        except ValueError:
+            self._view.txt_result.controls.clear()
+            self._view.create_alert("Il valore inserito non è un intero")
+            self._view.update_page()
+            return
+        if tint <= 0:
+            self._view.txt_result.controls.clear()
+            self._view.create_alert("Inserire un valore numerico positivo")
+            self._view.update_page()
+            return
+        tic = datetime.now()
+        path, scoreTot = self._model.getCamminoOttimo(v0, v1, tint)
+        self._view.txt_result.controls.clear()
+        self._view.txt_result.controls.append(ft.Text(f"Il percorso ottimo fra {v0} e {v1} è:"))
+        for p in path:
+            self._view.txt_result.controls.append(ft.Text(p))
+        self._view.txt_result.controls.append(ft.Text(f"Score: {scoreTot}"))
+        self._view.txt_result.controls.append(ft.Text(f"Percorso trovato in {datetime.now() - tic} secondi"))
+        self._view.update_page()
+        return
 
     def _fillDD(self, allNodes):
         for n in allNodes:

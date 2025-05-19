@@ -1,3 +1,5 @@
+import copy
+
 import networkx as nx
 
 from database.DAO import DAO
@@ -10,6 +12,8 @@ class Model:
         self._idMapAirports = {}
         for a in self._airports:
             self._idMapAirports[a.ID] = a  # associo l'aeroporto all'id
+        self._bestPath = []
+        self._bestObjFun = 0
 
     def buildGraph(self, nMin):
         nodes = DAO.getAllNodes(nMin, self._idMapAirports)
@@ -62,3 +66,36 @@ class Model:
         #     path.insert(0, mydict[path[0]])
 
         return path
+
+    # per il punto 2
+    def getCamminoOttimo(self, v0, v1, t):  # aeroportoP, aeroportoD e numero massimo di tratte t
+        self._bestPath = []
+        self._bestObjFun = 0
+        parziale = [v0]  # il pirmo nodo del percorso è quello dato dall'utente
+        self._ricorsione(parziale, v1, t)
+        return self._bestPath, self._bestObjFun
+
+    def _ricorsione(self, parziale, v1, t):  # ci servono v1 e t per capire se siamo arrivati alla fine o no
+        # verificare se parziale è una possibile soluzione
+            # verificare se parziale è meglio del best corrente
+            # esco
+        if parziale[-1] == v1:
+            if self.getObjFun(parziale) > self._bestObjFun:  # controllo lo score
+                self._bestObjFun = self.getObjFun(parziale)
+                self._bestPath = copy.deepcopy(parziale)
+        if len(parziale) == t+1:  # ho superato il numero massimo di tratte
+            return
+        # posso ancora aggiungere nodi
+            # prendo i vicini e aggiungo un nodo alla volta
+            # ricorsione
+        for n in self._graph.neighbors(parziale[-1]):
+            if n not in parziale: # nodo non ancora visitato
+                parziale.append(n)
+                self._ricorsione(parziale, v1, t)
+                parziale.pop()
+
+    def getObjFun(self, listOfNodes):
+        objval = 0
+        for i in range(0, len(listOfNodes) - 1):
+            objval += self._graph[listOfNodes[i]][listOfNodes[i + 1]]["weight"]
+        return objval
