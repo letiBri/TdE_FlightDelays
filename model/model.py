@@ -71,7 +71,7 @@ class Model:
     def getCamminoOttimo(self, v0, v1, t):  # aeroportoP, aeroportoD e numero massimo di tratte t
         self._bestPath = []
         self._bestObjFun = 0
-        parziale = [v0]  # il pirmo nodo del percorso è quello dato dall'utente
+        parziale = [v0]  # il primo nodo del percorso è quello dato dall'utente
         self._ricorsione(parziale, v1, t)
         return self._bestPath, self._bestObjFun
 
@@ -79,17 +79,16 @@ class Model:
         # verificare se parziale è una possibile soluzione
             # verificare se parziale è meglio del best corrente
             # esco
-        if parziale[-1] == v1:
-            if self.getObjFun(parziale) > self._bestObjFun:  # controllo lo score
-                self._bestObjFun = self.getObjFun(parziale)
-                self._bestPath = copy.deepcopy(parziale)
+        if self.getObjFun(parziale) > self._bestObjFun and parziale[-1] == v1 and len(parziale) < t:  # controllo lo score
+            self._bestObjFun = self.getObjFun(parziale)
+            self._bestPath = copy.deepcopy(parziale)
         if len(parziale) == t+1:  # ho superato il numero massimo di tratte
             return
         # posso ancora aggiungere nodi
             # prendo i vicini e aggiungo un nodo alla volta
             # ricorsione
-        for n in self._graph.neighbors(parziale[-1]):
-            if n not in parziale: # nodo non ancora visitato
+        for n in self._graph.neighbors(parziale[-1]):  # ciclo sui vicini dell'ultimo elemento che ho aggiunto
+            if n not in parziale:  # nodo non ancora visitato
                 parziale.append(n)
                 self._ricorsione(parziale, v1, t)
                 parziale.pop()
